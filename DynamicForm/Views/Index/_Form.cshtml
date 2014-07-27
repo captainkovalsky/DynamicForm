@@ -1,0 +1,35 @@
+﻿@using DynamicForm.Models
+@model FormViewModel
+<div>
+    @using (Html.BeginForm("SaveForm", "Index"))
+    {
+        @Html.HiddenFor(m => m.Id)
+        <div class="form-group">
+            @Html.LabelFor(m => m.FirstName, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control " })
+            @Html.ValidationMessageFor(m => m.FirstName, string.Empty, new { @class = "help-block" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.LastName, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control " })
+            @Html.ValidationMessageFor(m => m.LastName, string.Empty, new { @class = "help-block" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Email, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Email, string.Empty, new { @class = "help-block" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Age, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.Age, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Age, string.Empty, new { @class = "help-block" })
+        </div>
+
+        <div id="Discounts">
+            @Html.Partial("_discounts", Model)
+        </div>
+    }
+</div>

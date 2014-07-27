@@ -1,0 +1,21 @@
+﻿@using System.Web.Optimization
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    @Scripts.Render("~/Scripts/jquery")
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/bootstrap")
+</head>
+<body>
+    <div id="container">
+        <div id="main">
+            @RenderBody()
+        </div>
+        <div id="footer">
+            &copy; @DateTime.Now.Year Dynamic Form test
+        </div>
+    </div>
+    @RenderSection("scripts", false)
+</body>
+</html>

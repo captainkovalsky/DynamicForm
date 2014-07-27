@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "Dynamic form";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<h2>Test dynamic form</h2>
+<button id="showForm">Show form</button>
+<div id="dialog" style="display: none;" title="Dynamic loaded form">
+    <div id="formContainer">
+        @{ Html.RenderAction("GetForm"); }
+    </div>
+    <div>
+        <button id="AddInput">add element dynamically</button>
+    </div>
+</div>
+@section scripts
+{
+    <script>
+        (function ($) {
+            $.fn.clearErrors = function () {
+                $(this).each(function () {
+                    $(this).find(".field-validation-error").empty();
+                    $(this).trigger('reset.unobtrusiveValidation');
+                });
+            };
+
+            $.fn.resetForm = function () {
+                $(this).find('#Discounts > .row').remove();
+                $(this).find('input').val('');
+                $(this).find('.form-group').removeClass("has-success").removeClass("has-error");
+            };
+
+            $.fn.enableValidation = function () {
+                $(this).removeData("validator").removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse($(this));
+            };
+            $.validator.setDefaults({
+                highlight: function (element) {
+                    $(element).closest(".form-group").removeClass("has-success").addClass("has-error");
+                },
+                unhighlight: function (element) {
+                    $(element).closest(".form-group").removeClass("has-error").addClass('has-success');
+                }
+            });
+            $.ajaxSetup({ cache: false });
+            var dialog,
+                dialogParams = {
+                    dialogClass: "no-close",
+                    minWidth: 800,
+                    autoOpen: false,
+                    modal: true
+                };
+            function View(params) {
+
+                function initDialog() {
+                    dialog = $(params.dialogSelector).dialog($.extend(dialogParams, {
+                        open: function (event, ui) {
+                            $('form').clearErrors();
+                        },
+                        buttons: {
+                            "Close": function () {
+                                dialog.dialog('close');
+                            },
+                            "Save": function () {
+                                if ($('form').valid()) {
+                                    $.ajax({
+                                        url: $('form').attr('action'),
+                                        type: "POST",
+                                        data: $('form').serialize(),
+                                        success: function (result) {
+                                            if (result.success) {
+                                                $('form').resetForm();
+                                                $(dialog).dialog('close');
+                                            } else {
+                                                $("#formContainer").html(result);
+                                                $('form').enableValidation();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }));
+                }
+
+                function showDialog() {
+                    initDialog();
+                    dialog.dialog('open');
+                }
+
+                function bindEvents() {
+                    $(params.showFormButtonSelector).on('click', function () {
+                        showDialog();
+                    });
+
+                    $(params.dialogSelector).on('click', '#AddInput', function () {
+                        var $discountsContainer = $("#Discounts"),
+                             lastIndex = 0,
+                            data, html;
+                        if ($discountsContainer.find('.row:last').length > 0) {
+                            //provide correct index for non-sequential binding
+                            lastIndex = parseInt($discountsContainer.find('.row:last > input[name="Discounts.Index"]').val(), 10) + 1;
+                        }
+                        data = { index: lastIndex };
+                        html = $.templates("#discountRow").render(data);
+                        $(html).appendTo($discountsContainer);
+                        $('form').enableValidation();
+                    });
+
+                    $(document).on('click', '.removeDiscountRow', function (e) {
+                        $(e.target).parents('.row').remove();
+                    });
+                }
+
+                return {
+                    bindEvents: bindEvents
+                }
+            }
+
+            $(function () {
+                var view = new View({
+                    dialogSelector: "#dialog",
+                    showFormButtonSelector: "#showForm"
+                });
+                view.bindEvents();
+            });
+        })(jQuery);
+    </script>
+}
+<script id="discountRow" type="text/x-jsrender">
+    <div class="row">
+        <input type="hidden" name="Discounts.Index" value="{{: index}}">
+        <div class="col-md-4 form-group">
+            <div class="input-group">
+                <label class="control-label" for="Discounts_{{: index}}__Code">Code name</label>
+                <input class="form-control" id="Discounts_{{: index}}__Code" name="Discounts[{{: index}}].Code" type="text" />
+            </div>
+        </div>
+        <div class="col-md-6 form-group">
+            <div class="input-group">
+                <label class="control-label" for="Discounts_{{: index}}__Percent">Code discount</label>
+                <input class="form-control" id="Discounts_{{: index}}__Percent" name="Discounts[{{: index}}].Percent" type="text" />
+            </div>
+        </div>
+        <div class="col-md-2 form-group">
+            <div class="input-group">
+                <button type="button" class="btn btn-primary removeDiscountRow">Remove</button>
+            </div>
+        </div>
+    </div>
+</script>
+
+<style>
+    .removeDiscountRow {
+        margin-top: 25px;
+    }
+</style>

@@ -1,0 +1,30 @@
+﻿@using DynamicForm.Models
+@model FormViewModel
+@if (Model != null && Model.Discounts != null)
+{
+    for (int i = 0; i < Model.Discounts.Count; i++)
+    {
+        <div class="row">
+            <input type="hidden" name="Discounts.Index" value="@i" />
+            <div class="col-md-4 form-group">
+                <div class="input-group">
+                    @Html.LabelFor(m => m.Discounts[i].Code, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Discounts[i].Code, new { @class = "form-control " })
+                    @Html.ValidationMessageFor(m => m.Discounts[i].Code, string.Empty, new { @class = "help-block" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <div class="input-group">
+                    @Html.LabelFor(m => m.Discounts[i].Percent, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Discounts[i].Percent, new { @class = "form-control " })
+                    @Html.ValidationMessageFor(m => m.Discounts[i].Percent, string.Empty, new { @class = "help-block" })
+                </div>
+            </div>
+            <div class="col-md-2 form-group">
+                <div class="input-group">
+                    <button type="button" class="btn btn-primary removeDiscountRow">Remove</button>
+                </div>
+            </div>
+        </div>
+    }
+}
